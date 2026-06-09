@@ -1,0 +1,58 @@
+.select {
+  border: 1px solid #d7dbe0;
+  background: #ffffff;
+  border-radius: 4px;
+  height: 36px;
+  padding: 0 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  line-height: 1;
+  color: #1f2937;
+  cursor: pointer;
+  user-select: none;
+}
+
+.select:hover {
+  border-color: #0f6cde;
+  color: #0f6cde;
+  background-color: #ffffff;
+}
+.select:hover .select__value{   
+    color: #0f6cde !important;
+}
+.select:focus-visible {
+  outline: none;
+  border-color: #1a73e8;
+  box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.16);
+}
+
+.select__value {
+  font-weight: 500;
+  line-height: 1;
+  color: #1f2937;
+}
+
+.select__icon.mi__icon__down {
+  width: 16px;
+  height: 16px;
+  min-width: 16px;
+  background-color: #6b7280;
+  margin-top: 2px;
+}
+
+select{
+  border: 1px solid var(--border-control-normal);
+  height: 32px;
+  border-radius: 4px;
+}
+
+select:hover{
+    border: 1px solid var(--border-control-hover);
+}
+
+select:focus{
+    border: 1px solid var(--border-control-hover);
+    outline: none;
+}

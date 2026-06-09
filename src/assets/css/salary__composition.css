@@ -1,0 +1,268 @@
+.candidate__wrapper {
+  background-color: #fff;
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  border-radius: 4px;
+  box-shadow: 0 0 10px rgba(207, 206, 206, 0.1);
+}
+.content__title_right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.content__button__group > .content__button--add {
+  border-radius: 4px 0 0 4px !important;
+  border-right-color: #1661c2 !important;
+}
+.content__button__group > .content__button--down {
+  border-radius: 0 4px 4px 0 !important;
+}
+.content__button__group {
+  display: flex;
+  align-items: center;
+}
+/* tool grid  */
+.toolbar__grid {
+  display: flex;
+  flex-shrink: 0;
+  margin-bottom: 16px;
+  padding: 16px 18px;
+  padding-bottom: 0px !important;
+  justify-content: space-between;
+}
+
+.toolbar__left{
+  display: flex;
+  gap:8px
+}
+
+.toolbar__search {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 36px;
+  width: 303px;
+  border: 1px solid #dddde4;
+  background-color: #fff;
+  border-radius: 8px;
+}
+.toolbar__search:focus-within {
+  border-color:  #48bb56;
+  box-shadow: 0 0 0 3px rgba(207, 206, 206, 0.1);
+}
+.toolbar__search-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 36px;
+  width: 303px;
+  border: 1px solid #dddde4;
+  background-color: #fff;
+  border-radius: 4px;
+}
+.toolbar__search-input {
+  border: none !important;
+  outline: none !important;
+  font-size: 14px;
+  width: 100%;
+}
+.toolbar__right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.toolbar__right > .button__outline {
+  padding: 0 8px !important;
+}
+
+/* Custom Table  */
+
+
+.col__sticky {
+  position: sticky;
+  text-align: center !important;
+}
+/* Header sticky */
+thead .col__checkbox.col__sticky {
+  left: 0;
+  background: #f9fafb;
+  z-index: 6;
+}
+thead .col__action.col__sticky {
+  right: 0;
+  width: 72px;
+  min-width: 72px;
+  max-width: 72px;
+  background: #f9fafb;
+  z-index: 6;
+}
+/* Body sticky */
+tbody .col__checkbox.col__sticky {
+  left: 0;
+  background: #fff;
+  z-index: 5;
+}
+tbody .col__action.col__sticky {
+  right: 0;
+  width: 72px;
+  min-width: 72px;
+  max-width: 72px;
+  background: #fff;
+  z-index: 20;
+  overflow: visible;
+}
+.col__checkbox {
+  min-width: 50px;
+  padding: 12px;
+}
+.col__checkbox.col__sticky {
+  left: 0;
+}
+td.col__fullname {
+  min-width: 250px;
+  display: flex;
+  align-items: center;
+  text-align: left;
+}
+.col__fullname > .mi__icon__avatar {
+  width: 24px !important;
+  height: 24px !important;
+  min-width: 24px;
+  min-height: 24px;
+  background-size: cover !important;
+  background-position: center !important;
+  margin-left: 0px !important;
+  margin-right: 12px !important;
+}
+.fullname__text__title {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #48bb56;
+  padding-top: 4px;
+}
+.fullname__text__title > .mi__icon__check {
+  background-color: #48bb56;
+}
+.col__phone {
+  min-width: 150px;
+  max-width: 150px;
+}
+.col__email {
+  min-width: 200px;
+  max-width: 200px;
+}
+.col__chiendich {
+  min-width: 200px;
+  max-width: 200px;
+}
+.col__vitri {
+  min-width: 200px;
+  max-width: 200px;
+}
+.col__tintuyendung {
+  min-width: 150px;
+  max-width: 150px;
+}
+.col__vongtuyendung {
+  min-width: 180px;
+  max-width: 180px;
+}
+.col__danhgia {
+  min-width: 120px;
+  max-width: 120px;
+}
+td.col__danhgia {
+  text-align: left;
+  vertical-align: middle;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+.icon__rating {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: fit-content;
+  margin: 0;
+  line-height: 0;
+  gap: 4px;
+}
+
+.icon__rating .mi__icon__star {
+  display: block;
+}
+.col__ngayungtuyen {
+  min-width: 120px;
+  max-width: 120px;
+}
+.col__nguonungvien {
+  min-width: 150px;
+  max-width: 150px;
+}
+.col__trinhdodaotao {
+  min-width: 100px;
+  max-width: 100px;
+}
+.col__noidaotao {
+  min-width: 150px;
+  max-width: 150px;
+}
+.col__chuyennganh {
+  min-width: 150px;
+  max-width: 150px;
+}
+.col__noilamviecgannhat {
+  min-width: 150px;
+  max-width: 150px;
+}
+.col__nhansukhaithac {
+  min-width: 150px;
+  max-width: 150px;
+}
+.col__donvisd {
+  min-width: 150px;
+  max-width: 150px;
+}
+.col__action {
+  position: sticky;
+  right: 0;
+  width: 72px;
+  min-width: 72px;
+  max-width: 72px;
+  background: #fff;
+  overflow: visible;
+}
+.action__group {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  visibility: hidden;
+  z-index: 10;
+}
+tbody tr:hover .action__group {
+  visibility: visible;
+}
+
+.button__wrapper {
+  background-color: rgb(255, 255, 255);
+  cursor: pointer;
+  width: 28px;
+  height: 28px;
+  border: 0.8px solid rgb(213, 215, 218);
+  border-radius: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.button__wrapper:hover{
+  background-color: #f2f2f2
+}

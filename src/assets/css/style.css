@@ -1,0 +1,9 @@
+/* Nhúng file css dùng chung  */
+@import url('./layout.css');
+@import url('./icon.css');
+@import url('./salary__composition.css');
+@import url('./common.css');
+@import url('./select.css');
+@import url('./form.css');
+@import url('./inter.css');
+

@@ -1,0 +1,312 @@
+@import url('./icon.css');
+/* style cho thanh header */
+.navbar{
+    height: 48px;
+    width: 100%;
+    position: relative;
+    left: 0;
+    top: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    color: #1e2633;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); 
+    z-index: 20;
+    min-width: var(--layout-min-width);
+   background-color: rgb(14, 154, 98);
+}
+.navbar__left{
+    display: flex;
+    margin-left: 16px;
+}
+.navbar__left__logo{
+    background-image: url(../img/nav-bg.svg);
+    background-position: left;
+    background-repeat: no-repeat;
+    background-size: cover;
+    display: flex;
+    align-items: center;
+    
+}
+.navbar__left__wrap{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    
+}
+.navbar__left__text{
+    color:rgb(255, 255, 255);
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 27px;
+    user-select: none;
+    padding: 0 12px;
+    
+}
+.navbar__left__background{
+    background-image: url(../img/event-back.webp);
+    background-position: bottom;
+    background-repeat: no-repeat;
+    background-size: contain;
+    height: 48px;
+    width: 230px;
+    position: absolute;
+    bottom: 0px;
+    z-index: 2;
+    margin-left: -62px;
+}
+/* Thanh search trên navbar */
+.navbar__right__wrap__search{
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+.navbar__right__search{
+    display: flex;
+    align-items: center;
+    color: #d9dde2;
+}
+
+.navbar__right__input{
+    min-width: 300px;
+    border: none;
+    outline: none;
+    border-radius: 8px;
+    background-color: rgb(255, 255, 255, 0.2);
+    margin-left: 12px;
+    padding-left: 32px !important;
+    padding-right: 32px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+}
+.navbar__right__input::placeholder {
+    color: #d9dde2;
+  
+}
+/* Navbar bên phải  */
+.navbar__right{
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.navbar__right__web{
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-right: 8px;
+}
+.navbar__right__store{
+    margin:0 10px;
+    position: relative;
+}
+.navbar__right__store--count{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    position: absolute;
+    top: -4px;
+    right: -11px;
+    height: 16px;
+    aspect-ratio: 1 / 1;
+    background-color: red;
+    font-size: 10px;
+    font-weight: 700;
+    color: #fff;
+
+}
+.navbar__right__alert{
+    position: relative;
+    margin:0 10px;
+}
+.navbar__right__alert--count{
+    background-color: #ff2929;
+    color: #fff;
+    position: absolute;
+    top: -4px;
+    right: -6px;
+    padding: 0 7px;
+    border-radius: 24px;
+    height: 16px;
+    line-height: 16px;
+    font-size: 10px;
+    font-weight: 700;
+}
+.navbar__right--web:hover .mi__icon__web{
+    background-color: #2a7efc;
+}
+.navbar__right--web:hover {
+    color: #2a7efc;
+}
+.navbar__right > .mi__icon__knowledge{
+    margin: 0 12px;
+}
+/* end style thanh navbar */
+
+/* Style cho thanh sidebar */
+.sidebar{
+    width: 233px;
+   background-color: #ffffff ;
+    position: absolute;
+    left: 0;
+    top: 48px;
+    bottom: 0;
+    background-position: bottom;
+    background-repeat: no-repeat;
+    background-size: cover;
+    width: var(--sidebar-width);
+    transition: width 0.25s ease;
+} 
+.sidebar__list{
+    height: 100%;
+   position: relative;
+}
+.sidebar__menu{
+    height: calc(100% - 56px); 
+    width: 100%;
+    padding: 32px 12px;
+}
+.sidebar__menu__item{
+    height: 40px;
+    width: 100%;
+    color: #c5ccd5; 
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-left: 12px;
+    margin-bottom: 12px;
+    transition: all 0.25s ease;
+    border-radius: 8px;
+     border: 1px solid transparent;
+     position: relative;
+}
+
+.sidebar__menu__item:hover{
+    cursor: pointer;
+background-color: rgba(255, 255, 255, 0.08); 
+  border-color: rgba(255, 255, 255, 0.12);     
+}
+
+.menu__item__text{
+color: rgb(16, 24, 40);
+font-size: 13px;
+font-weight:500;
+}
+
+/* Toggle sidebar */
+.sidebar__toggle{
+    height: 40px;
+    width: 40px;
+    border-radius: 4px;
+    background-color: rgb(250, 250, 250);
+    padding: 12px;
+    margin: 0 12px;
+    border: 1px solid #e0e0e0;
+    display: flex;
+    align-items: center;
+    position: absolute;
+    bottom: 2px; 
+    right: 2px;
+
+}
+.sidebar__toggle{
+    cursor: pointer;
+}
+
+.sidebar__toggle__text{
+    font-weight: 500;
+    margin-left: 12px;
+    font-size: 14px;
+    color: #ffffff;
+    white-space: nowrap;
+}
+.sidebar__toggle__icon{
+    background-image: url("data:image/svg+xml,%3csvg%20width='20'%20height='20'%20viewBox='0%200%2020%2020'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20d='M10.8333%205.83334H17.5M10.8333%2014.1667H17.5M14.1667%2010H17.5M2.5%2010H10.8333M2.5%2010L6.25%2013.75M2.5%2010L6.25%206.25001'%20stroke='%23717680'%20stroke-width='1.5'%20stroke-linecap='round'%20stroke-linejoin='round'/%3e%3c/svg%3e");
+width: 20px;
+    height: 20px;
+    
+    /* Đảm bảo hình ảnh SVG hiển thị trọn vẹn và không bị lặp lại */
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+}
+
+/* Sidebar collapsed */
+.sidebar.collapsed{
+    width: 72px;
+}
+
+.sidebar.collapsed .sidebar__menu{
+    padding: 32px 8px;
+}
+
+.sidebar.collapsed .sidebar__menu__item{
+    justify-content: center;
+    padding-left: 0;
+    gap: 0;
+}
+
+.sidebar.collapsed .menu__item__text,
+.sidebar.collapsed .sidebar__toggle__text{
+    display: none;
+}
+
+.sidebar.collapsed .sidebar__toggle{
+    justify-content: center;
+    padding: 12px 0;
+}
+
+.sidebar.collapsed .sidebar__toggle .mi__icon__left{
+    -webkit-mask-position: -40px -696px;
+}
+
+/* Khi hover vào icon sidebar sẽ đổi màu nền của icon và chữ  */
+.sidebar__menu__item:hover {
+
+}
+.sidebar__menu__item:hover .sidebar__menu__item_icon{
+    background-color: #7a8188;
+} 
+
+
+/* end style thanh sidebar */ 
+
+/* style cho content */
+.content{
+    height: calc(100vh - 48px);
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    background-color: #EBECEF;
+    position: absolute;
+    left: var(--sidebar-width);
+    min-width: calc(var(--layout-min-width) - var(--sidebar-width));
+    right: 0;
+    bottom: 0;
+    padding: 16px 24px;
+    padding-right: 12px !important;
+    transition: left 0.25s ease, min-width 0.25s ease;
+   
+}
+
+.sidebar.collapsed ~ .content{
+    left: 72px;
+    min-width: calc(var(--layout-min-width) - 72px);
+}
+.content__title__header{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+.content__title_left{
+    font-size: 20px;
+    font-weight: 700;
+    padding-top: 8px;
+    padding-bottom: 4px;
+}
+/* end style content */
+

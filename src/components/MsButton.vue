@@ -75,9 +75,10 @@ defineEmits(['click', 'dropdown-click']);
   --primary-color: #02B956;
   --pressed-color: #198F3B;
   --disabled-opacity: 0.6;
-  --border-radius: 4px;
+  --border-radius: 8px;
   --height: 36px;
   --font-size: 14px;
+  --secondary-color:#D5D7DA;
 }
 
 /* --- STYLE CƠ BẢN CỦA BUTTON --- */
@@ -123,8 +124,8 @@ defineEmits(['click', 'dropdown-click']);
 /* 2. Nút phụ (Secondary) */
 .ms-btn--secondary {
   background-color: #ffffff;
-  color: var(--primary-color);
-  border: 1px solid var(--primary-color);
+  color:  #101828;
+  border: 1px solid var(--secondary-color);
 }
 .ms-btn--secondary:hover {
   background-color: rgba(2, 185, 86, 0.08);

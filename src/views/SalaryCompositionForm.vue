@@ -6,32 +6,46 @@ import MsDropdown from '@/components/MsDropdown.vue'
 import { SalaryCompositionService } from '@/services/SalaryComposition'
 import { ref, watch, onMounted } from 'vue'
 import MsDropdownSearch from '@/components/MsDropdownSearch.vue'
+import MsTree from '@/components/MsTree.vue'
+import MsButton from '@/components/MsButton.vue'
+import { OrganizationService } from '@/services/OrganizationService'
+import { nextTick } from 'vue'
 
 // --- KHAI BÁO DỮ LIỆU FORM ---
 const formData = ref({
-  tenThanhPhan: '',
-  maThanhPhan: '',
-  donViApDung: ['Misa Test pdthien 2024'],
-  loaiThanhPhan: 'Thông tin nhân viên',
-  tinhChat: 'Thu nhập',
-  loaiThue: 'chiu-thue',
-  dinhMuc: '',
-  vuotDinhMuc: false,
+  salaryCompositionName: '',
+  salaryCompositionCode: '',
+  organizationIdsList: [],
+  compositionType: '',
+  natureType: 'Thu nhập',
+  taxType: 'Chịu thuế',
   isTaxReduction: '',
-  kieuGiaTri: 'Tiền tệ',
-  loaiGiaTri: 'cong-thuc',
-  phamViCongTong: 'Trong cùng đơn vị công tác',
-  thanhPhanCongTongId: '',
-  congThucTuDat: '',
-  moTa: '',
-  hienThiPhieuLuong: 'co',
-  nguonTao: 'Tự thêm',
+  quotaFormula: '',
+  isAllowOverQuota: 0,
+  dataType: 'Tiền tệ',
+  valueCalculationType: 'Tính theo công thức tự đặt',
+  aggregationScope: 'Trong cùng đơn vị công tác',
+  customFormula: '',
+  description: '',
+  isVisibleOnPayslip: 'Có',
+  sourceType: 'Tự thêm',
+  isActive: 'Đang theo dõi',
 })
 
+const errors = ref({
+  salaryCompositionName: '',
+  salaryCompositionCode: '',
+  compositionType: '',
+  organizationIdsList: '',
+})
+const organizationTree = ref([])
 const salaryCompositionOptions = ref([])
 const salaryValue = ref('')
+const msTreeRef = ref()
+const salaryCompositionNameRef = ref()
+const salaryCompositionCodeRef = ref()
 
-const loaiThanhPhanOptions = [
+const compositionTypeOptions = [
   { value: 'Thông tin nhân viên', label: 'Thông tin nhân viên' },
   { value: 'Chấm công', label: 'Chấm công' },
   { value: 'Doanh số', label: 'Doanh số' },
@@ -43,13 +57,13 @@ const loaiThanhPhanOptions = [
   { value: 'Khác', label: 'Khác' },
 ]
 
-const tinhChatOptions = [
+const natureTypeOptions = [
   { value: 'Thu nhập', label: 'Thu nhập' },
   { value: 'Khấu trừ', label: 'Khấu trừ' },
   { value: 'Khác', label: 'Khác' },
 ]
 
-const kieuGiaTriOptions = [
+const dataTypeOptions = [
   { value: 'Tiền tệ', label: 'Tiền tệ' },
   { value: 'Số', label: 'Số' },
   { value: 'Phần trăm', label: 'Phần trăm' },
@@ -57,7 +71,7 @@ const kieuGiaTriOptions = [
   { value: 'Ngày', label: 'Ngày' },
 ]
 
-const phamViOptions = [
+const aggregationScopeOptions = [
   { value: 'Trong cùng đơn vị công tác', label: 'Trong cùng đơn vị công tác' },
   { value: 'Dưới quyền', label: 'Dưới quyền' },
   { value: 'Thuộc cơ cấu tổ chức', label: 'Thuộc cơ cấu tổ chức' },
@@ -86,35 +100,163 @@ const fetchSalaryCompositions = async () => {
   }
 }
 
+const validateForm = () => {
+  errors.value = {
+    salaryCompositionName: '',
+    salaryCompositionCode: '',
+    compositionType: '',
+    organizationIdsList: '',
+    natureType: '',
+  }
+
+  let isValid = true
+
+  // Tên thành phần
+  if (!formData.value.salaryCompositionName?.trim()) {
+    errors.value.salaryCompositionName = 'Tên thành phần không được để trống'
+    isValid = false
+  } else if (formData.value.salaryCompositionName.length > 255) {
+    errors.value.salaryCompositionName = 'Tên thành phần không được vượt quá 255 ký tự'
+    isValid = false
+  }
+
+  // Mã thành phần
+  if (!formData.value.salaryCompositionCode?.trim()) {
+    errors.value.salaryCompositionCode = 'Mã thành phần không được để trống'
+    isValid = false
+  } else if (formData.value.salaryCompositionCode.length > 255) {
+    errors.value.salaryCompositionCode = 'Mã thành phần không được vượt quá 255 ký tự'
+    isValid = false
+  }
+
+  // Loại thành phần
+  if (!formData.value.compositionType) {
+    errors.value.compositionType = 'Loại thành phần không được để trống'
+    isValid = false
+
+    return isValid
+  }
+
+  // Đơn vị áp dụng
+  const selectedOrganizations = msTreeRef.value?.treeBoxValue || []
+
+  if (!selectedOrganizations.length) {
+    errors.value.organizationIdsList = 'Đơn vị áp dụng không được để trống'
+    isValid = false
+  }
+  //tính chất
+  if (!formData.value.natureType) {
+    errors.value.natureType = 'Tính chất không được để trống'
+    isValid = false
+  }
+
+  return isValid
+}
+
+const focusFirstError = async () => {
+  await nextTick()
+
+  if (errors.value.salaryCompositionName) {
+    salaryCompositionNameRef.value?.focusInput?.()
+    return
+  }
+
+  if (errors.value.salaryCompositionCode) {
+    salaryCompositionCodeRef.value?.focusInput?.()
+    return
+  }
+}
+
+function buildTree(data) {
+  const map = new Map()
+  const roots = []
+
+  data.forEach((item) => {
+    map.set(item.organizationID, {
+      ...item,
+      items: [],
+    })
+  })
+
+  data.forEach((item) => {
+    const node = map.get(item.organizationID)
+
+    if (item.parentId) {
+      map.get(item.parentId)?.items.push(node)
+    } else {
+      roots.push(node)
+    }
+  })
+
+  return roots
+}
+
+// Gọi API để lấy dữ liệu cây tổ chức
+async function loadOrganizationTree() {
+  try {
+    const res = await OrganizationService.getOrganizationAll()
+
+    organizationTree.value = buildTree(res.data)
+  } catch (error) {
+    console.error('Lỗi khi tải dữ liệu OrganizationTrees:', error)
+  }
+}
+
 onMounted(() => {
   fetchSalaryCompositions()
+  loadOrganizationTree()
 })
 
 watch(
-  () => formData.value.loaiThanhPhan,
+  () => formData.value.compositionType,
   (newVal) => {
     const specialTypes = ['Chấm công', 'KPI', 'Sản phẩm']
     if (specialTypes.includes(newVal)) {
-      formData.value.tinhChat = 'Khác'
+      formData.value.natureType = 'Khác'
     } else {
-      formData.value.tinhChat = 'Thu nhập'
+      formData.value.natureType = 'Thu nhập'
     }
   },
 )
 
 watch(
-  () => formData.value.tinhChat,
+  () => formData.value.natureType,
   (newTinhChat) => {
     if (newTinhChat === 'Thu nhập' || newTinhChat === 'Khấu trừ') {
-      formData.value.kieuGiaTri = 'Tiền tệ'
+      formData.value.dataType = 'Tiền tệ'
     } else {
-      formData.value.kieuGiaTri = 'Số'
+      formData.value.dataType = 'Số'
     }
   },
 )
 
-const handleRemoveDonVi = () => {
-  formData.value.donViApDung = []
+const handleSave = async () => {
+  try {
+    const isValid = validateForm()
+
+    if (!isValid) {
+      await focusFirstError()
+      return
+    }
+
+    const payload = {
+      ...formData.value,
+      organizationIdsList: msTreeRef.value?.treeBoxValue,
+    }
+
+    console.log('Payload gửi lên API:', payload)
+
+    const result = await SalaryCompositionService.createSalaryComposition(payload)
+
+    console.log('Kết quả:', result)
+
+    alert('Lưu thành công')
+  } catch (error) {
+    console.error(error)
+
+    const message =
+      error.response?.data?.message || error.response?.data?.Message || 'Có lỗi xảy ra'
+  }
 }
 </script>
 
@@ -137,7 +279,13 @@ const handleRemoveDonVi = () => {
             </div>
             <div class="form-input-cell">
               <!-- Vì MsInput bên trong có sẵn thẻ label mặc định, ta chỉ lấy phần input bằng cách bỏ qua prop label -->
-              <MsInput v-model="formData.tenThanhPhan" />
+              <MsInput
+                ref="salaryCompositionNameRef"
+                v-model="formData.salaryCompositionName"
+                autofocus
+                :error="errors.salaryCompositionName"
+                @input="errors.salaryCompositionName = ''"
+              />
             </div>
           </div>
 
@@ -147,7 +295,13 @@ const handleRemoveDonVi = () => {
               <label class="form-label">Mã thành phần <span class="required">*</span></label>
             </div>
             <div class="form-input-cell">
-              <MsInput v-model="formData.maThanhPhan" placeholder="Nhập mã viết liền" />
+              <MsInput
+                ref="salaryCompositionCodeRef"
+                v-model="formData.salaryCompositionCode"
+                placeholder="Nhập mã viết liền"
+                :error="errors.salaryCompositionCode"
+                @input="errors.salaryCompositionCode = ''"
+              />
             </div>
           </div>
 
@@ -157,11 +311,10 @@ const handleRemoveDonVi = () => {
               <label class="form-label">Đơn vị áp dụng <span class="required">*</span></label>
             </div>
             <div class="form-input-cell">
-              <MsInput
-                :tags="formData.donViApDung"
-                :removable-tags="true"
-                readonly
-                @remove-tag="handleRemoveDonVi"
+              <MsTree
+                ref="msTreeRef"
+                style="--ms-tree-width: 1023px"
+                :data-source="organizationTree"
               />
             </div>
           </div>
@@ -174,9 +327,11 @@ const handleRemoveDonVi = () => {
             <div class="form-input-cell w-full-dropdown">
               <div class="dropdown-part w-full-dropdown">
                 <MsDropdown
-                  v-model:value="formData.loaiThanhPhan"
-                  :options="loaiThanhPhanOptions"
+                  v-model:value="formData.compositionType"
+                  :options="compositionTypeOptions"
                   variant="filter"
+                  :error="!!errors.compositionType"
+                  :errorMessage="errors.compositionType"
                 />
               </div>
             </div>
@@ -189,32 +344,34 @@ const handleRemoveDonVi = () => {
             <div class="form-input-cell complex-row">
               <div class="dropdown-part w-full-dropdown">
                 <MsDropdown
-                  v-model:value="formData.tinhChat"
-                  :options="tinhChatOptions"
+                  v-model:value="formData.natureType"
+                  :options="natureTypeOptions"
                   variant="filter"
+                  :error="!!errors.natureType"
+                  :errorMessage="errors.natureType"
                 />
               </div>
 
               <!-- TH1: Tính chất là Thu nhập -> Hiện nhóm radio thuế -->
-              <div class="radio-part" v-if="formData.tinhChat === 'Thu nhập'">
+              <div class="radio-part" v-if="formData.natureType === 'Thu nhập'">
                 <label class="misa-radio">
-                  <input type="radio" value="chiu-thue" v-model="formData.loaiThue" />
+                  <input type="radio" value="Chịu thuế" v-model="formData.taxType" />
                   <span class="radio-mark"></span>Chịu thuế
                 </label>
                 <label class="misa-radio">
-                  <input type="radio" value="mien-toan-phan" v-model="formData.loaiThue" />
+                  <input type="radio" value="Miễn thuế toàn phần" v-model="formData.taxType" />
                   <span class="radio-mark"></span>Miễn thuế toàn phần
                 </label>
                 <label class="misa-radio">
-                  <input type="radio" value="mien-mot-phan" v-model="formData.loaiThue" />
+                  <input type="radio" value="Miễn thuế một phần" v-model="formData.taxType" />
                   <span class="radio-mark"></span>Miễn thuế một phần
                 </label>
               </div>
 
               <!-- TH2: Tính chất là Khấu trừ -> Hiện checkbox giảm trừ thuế (image_6bfcff.png) -->
-              <div class="checkbox-part pl-4 pt-1" v-else-if="formData.tinhChat === 'Khấu trừ'">
+              <div class="checkbox-part pl-4 pt-1" v-else-if="formData.natureType === 'Khấu trừ'">
                 <label class="misa-checkbox">
-                  <input type="checkbox" v-model="formData.giamTruKhiTinhThue" />
+                  <input type="checkbox" v-model="formData.isTaxReduction" />
                   <span class="checkbox-mark"></span>
                   Giảm trừ khi tính thuế
                 </label>
@@ -223,13 +380,13 @@ const handleRemoveDonVi = () => {
           </div>
 
           <!-- Định mức (Sẽ ẩn hoàn toàn khi Tính chất là 'Khác') -->
-          <div class="form-row alignment-top" v-if="formData.tinhChat !== 'Khác'">
+          <div class="form-row alignment-top" v-if="formData.natureType !== 'Khác'">
             <div class="form-label-cell pt-2">
               <label class="form-label">Định mức</label>
             </div>
             <div class="form-input-cell">
               <textarea
-                v-model="formData.dinhMuc"
+                v-model="formData.quotaFormula"
                 class="misa-textarea"
                 placeholder="Tự động gợi ý công thức và tham số khi gõ"
                 rows="3"
@@ -238,11 +395,16 @@ const handleRemoveDonVi = () => {
           </div>
 
           <!-- Cho phép vượt định mức (Sẽ ẩn hoàn toàn khi Tính chất là 'Khác') -->
-          <div class="form-row" v-if="formData.tinhChat !== 'Khác'">
+          <div class="form-row" v-if="formData.natureType !== 'Khác'">
             <div class="form-label-cell"></div>
             <div class="form-input-cell">
               <label class="misa-checkbox">
-                <input type="checkbox" v-model="formData.vuotDinhMuc" />
+                <input
+                  type="checkbox"
+                  v-model="formData.isAllowOverQuota"
+                  :true-value="1"
+                  :false-value="0"
+                />
                 <span class="checkbox-mark"></span>
                 Cho phép giá trị tính vượt quá định mức
                 <span class="info-icon" title="Thông tin thêm">i</span>
@@ -258,10 +420,10 @@ const handleRemoveDonVi = () => {
             <div class="form-input-cell w-full-dropdown">
               <div class="dropdown-part w-full-dropdown">
                 <MsDropdown
-                  v-model:value="formData.kieuGiaTri"
-                  :options="kieuGiaTriOptions"
+                  v-model:value="formData.dataType"
+                  :options="dataTypeOptions"
                   variant="filter"
-                  :disabled="formData.tinhChat !== 'Khác'"
+                  :disabled="formData.natureType !== 'Khác'"
                 />
               </div>
             </div>
@@ -275,7 +437,11 @@ const handleRemoveDonVi = () => {
             <div class="form-input-cell block-cell">
               <div class="radio-sub-block">
                 <label class="misa-radio">
-                  <input type="radio" value="tu-dong-cong" v-model="formData.loaiGiaTri" />
+                  <input
+                    type="radio"
+                    value="Tự động cộng tổng giá trị của các nhân viên"
+                    v-model="formData.valueCalculationType"
+                  />
                   <span class="radio-mark"></span>
                   Tự động cộng tổng giá trị của các nhân viên
                 </label>
@@ -283,14 +449,22 @@ const handleRemoveDonVi = () => {
                 <div class="full-width-group">
                   <div class="dropdown-group">
                     <MsDropdown
-                      v-model:value="formData.phamViCongTong"
-                      :options="phamViOptions"
+                      v-model:value="formData.aggregationScope"
+                      :options="aggregationScopeOptions"
                       variant="filter"
                       class="dropdown-fixed-width"
-                      :disabled="formData.loaiGiaTri !== 'tu-dong-cong'"
+                      :disabled="
+                        formData.valueCalculationType !==
+                        'Tự động cộng tổng giá trị của các nhân viên'
+                      "
                     />
 
-                    <template v-if="formData.loaiGiaTri === 'tu-dong-cong'">
+                    <template
+                      v-if="
+                        formData.valueCalculationType ===
+                        'Tự động cộng tổng giá trị của các nhân viên'
+                      "
+                    >
                       <MsDropdownSearch
                         v-if="salaryCompositionOptions.length > 0"
                         v-model:value="salaryValue"
@@ -314,21 +488,25 @@ const handleRemoveDonVi = () => {
 
               <div class="radio-sub-block mt-3">
                 <label class="misa-radio">
-                  <input type="radio" value="cong-thuc" v-model="formData.loaiGiaTri" />
+                  <input
+                    type="radio"
+                    value="Tính theo công thức tự đặt"
+                    v-model="formData.valueCalculationType"
+                  />
                   <span class="radio-mark"></span>
                   Tính theo công thức tự đặt
                 </label>
 
-                <div class="formula-container" v-if="formData.loaiGiaTri === 'cong-thuc'">
+                <div
+                  class="formula-container"
+                  v-if="formData.valueCalculationType === 'Tính theo công thức tự đặt'"
+                >
                   <textarea
-                    v-model="formData.congThucTuDat"
+                    v-model="formData.customFormula"
                     class="misa-textarea formula-textarea"
                     placeholder="Tự động gợi ý công thức và tham số khi gõ"
                     rows="3"
                   ></textarea>
-                  <div class="robot-icon-wrapper">
-                    <div class="robot-avatar">🤖</div>
-                  </div>
                 </div>
               </div>
             </div>
@@ -340,7 +518,7 @@ const handleRemoveDonVi = () => {
               <label class="form-label">Mô tả</label>
             </div>
             <div class="form-input-cell">
-              <textarea v-model="formData.moTa" class="misa-textarea" rows="3"></textarea>
+              <textarea v-model="formData.description" class="misa-textarea" rows="3"></textarea>
             </div>
           </div>
 
@@ -352,15 +530,19 @@ const handleRemoveDonVi = () => {
             <div class="form-input-cell">
               <div class="radio-part">
                 <label class="misa-radio">
-                  <input type="radio" value="co" v-model="formData.hienThiPhieuLuong" />
+                  <input type="radio" value="Có" v-model="formData.isVisibleOnPayslip" />
                   <span class="radio-mark"></span>Có
                 </label>
                 <label class="misa-radio">
-                  <input type="radio" value="khong" v-model="formData.hienThiPhieuLuong" />
+                  <input type="radio" value="Không" v-model="formData.isVisibleOnPayslip" />
                   <span class="radio-mark"></span>Không
                 </label>
                 <label class="misa-radio">
-                  <input type="radio" value="khac-0" v-model="formData.hienThiPhieuLuong" />
+                  <input
+                    type="radio"
+                    value="Chỉ hiển thị nếu giá trị khác 0"
+                    v-model="formData.isVisibleOnPayslip"
+                  />
                   <span class="radio-mark"></span>Chỉ hiển thị nếu giá trị khác 0
                 </label>
               </div>
@@ -373,18 +555,17 @@ const handleRemoveDonVi = () => {
               <label class="form-label">Nguồn tạo</label>
             </div>
             <div class="form-input-cell input-short-width">
-              <MsInput v-model="formData.nguonTao" disabled />
+              <MsInput v-model="formData.sourceType" disabled />
             </div>
           </div>
         </form>
       </div>
 
       <div class="form-footer">
-        <button type="button" class="btn-secondary">Hủy bỏ</button>
-        <div class="form-footer__right">
-          <button type="button" class="btn-outline">Lưu và thêm</button>
-          <button type="button" class="btn-primary">Lưu</button>
-        </div>
+        <ms-button variant="secondary">
+            Hủy bỏ
+          </ms-button>
+        <ms-button variant="primary"  @click="handleSave">Lưu</ms-button>
       </div>
     </div>
   </main>
@@ -555,25 +736,6 @@ const handleRemoveDonVi = () => {
 .formula-textarea {
   padding-right: 46px;
 }
-
-.robot-icon-wrapper {
-  position: absolute;
-  right: 12px;
-  bottom: 12px;
-}
-
-.robot-avatar {
-  width: 28px;
-  height: 28px;
-  background: #e6f7ff;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 16px;
-  border: 1px solid #1890ff;
-}
-
 /* --- CUSTOM RADIO BUTTONS --- */
 .misa-radio {
   display: inline-flex;
@@ -691,5 +853,13 @@ const handleRemoveDonVi = () => {
 .dropdown-flex-fill {
   flex: 1;
   width: auto !important;
+}
+.form-footer {
+  display: flex;
+  justify-content: flex-end; /* đẩy toàn bộ nội dung sang phải */
+  align-items: center;
+  gap: 12px;
+ padding: 12px 24px;
+  flex-shrink: 0;
 }
 </style>

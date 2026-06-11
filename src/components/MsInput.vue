@@ -32,11 +32,11 @@
         @input="onInput"
         @focus="$emit('focus')"
         @blur="$emit('blur')"
+        :autofocus="autofocus"
       />
 
       <span v-if="loading" class="ms-input__loading" aria-hidden="true"></span>
       <span v-else-if="valid && !error" class="ms-input__valid" aria-hidden="true"></span>
-      <span v-else-if="error" class="ms-input__error-icon" aria-hidden="true">!</span>
 
       <button
         v-if="searchable"
@@ -54,7 +54,7 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 
 const props = defineProps({
   modelValue: {
@@ -82,7 +82,8 @@ const props = defineProps({
   removableTags: {
     type: Boolean,
     default: true
-  }
+  },
+  autofocus: Boolean
 })
 
 const emit = defineEmits([
@@ -115,6 +116,15 @@ const onInput = (event) => {
   emit('update:modelValue', event.target.value)
   emit('input', event.target.value)
 }
+
+onMounted(() => {
+  if (props.autofocus) {
+    inputRef.value?.focus()
+  }
+})
+defineExpose({
+  focusInput
+})
 </script>
 
 <style scoped>

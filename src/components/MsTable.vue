@@ -135,9 +135,8 @@ td {
 }
 
 .table__wrap thead th {
-  position: sticky;
   top: 0;
-  z-index: 2;
+  z-index: 0;
   background: #f6f6f6;
 }
 

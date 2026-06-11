@@ -6,8 +6,16 @@ import MsPagination from '@/components/MsPagination.vue'
 import MsDropdown from '@/components/MsDropdown.vue'
 import MsButton from '@/components/MsButton.vue'
 import MsTree from '@/components/MsTree.vue'
+import MsConfirmModal from '@/components/MsConfirmModal.vue'
 import { ref, onMounted, watch } from 'vue'
 import { SalaryCompositionService } from '@/services/SalaryComposition.js'
+import { OrganizationService } from '@/services/OrganizationService'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+
+const organizationTree = ref([])
+
 const fields = [
   { key: 'selected', label: '', class: 'col-checkbox' },
   { key: 'salaryCompositionCode', label: 'Mã thành phần', class: 'col__code' },
@@ -42,12 +50,54 @@ const isDropdownOpen = ref(false) // Trạng thái ẩn/hiện dropdown gợi ý
 const searchResults = ref([]) // Danh sách kết quả hiển thị ở dropdown
 const isSelectedFromDropdown = ref(false) // Đánh dấu nếu vừa click chọn từ dropdown
 
+const isConfirmOpen = ref(false)
+const selectedRow = ref(null)
+const isDeleting = ref(false)
 
+function buildTree(data) {
+  const map = new Map()
+  const roots = []
+
+  data.forEach((item) => {
+    map.set(item.organizationID, {
+      ...item,
+      items: [],
+    })
+  })
+
+  data.forEach((item) => {
+    const node = map.get(item.organizationID)
+
+    if (item.parentId) {
+      map.get(item.parentId)?.items.push(node)
+    } else {
+      roots.push(node)
+    }
+  })
+
+  return roots
+}
+
+// Gọi API để lấy dữ liệu cây tổ chức
+async function loadOrganizationTree() {
+  try {
+    const res = await OrganizationService.getOrganizationAll()
+
+    organizationTree.value = buildTree(res.data)
+  } catch (error) {
+    console.error('Lỗi khi tải dữ liệu OrganizationTrees:', error)
+  }
+}
+
+const handleCreateClick = () => {
+  router.push('/form')
+}
 
 // Hàm map dữ liệu dùng chung tránh lặp code
 const mapResponseData = (dataArray) => {
   return (dataArray || []).map((item) => ({
     ...item,
+    salaryCompositionId: item.salaryCompositionID, 
     salaryCompositionCode: item.salaryCompositionCode,
     name: item.salaryCompositionName,
     unit: item.organizationNames,
@@ -172,17 +222,34 @@ const handlePageSizeChange = () => {
   loadSalaryData()
 }
 
-// Khởi chạy load dữ liệu lần đầu tiên khi vào trang
-onMounted(() => {
-  loadSalaryData()
-})
+const confirmDelete = async () => {
+  if (!selectedRow.value) return
+
+  try {
+    isDeleting.value = true
+
+    await SalaryCompositionService.deleteSalaryComposition(selectedRow.value.salaryCompositionId)
+    console.log(selectedRow.value)
+
+    // reload lại bảng
+    await loadSalaryData()
+
+    isConfirmOpen.value = false
+    selectedRow.value = null
+  } catch (err) {
+    console.error('Xóa thất bại:', err)
+  } finally {
+    isDeleting.value = false
+  }
+}
 
 const handleEditClick = (row) => {
   console.log('Sửa:', row)
 }
 
 const handleDeleteClick = (row) => {
-  console.log('Xóa:', row)
+  selectedRow.value = row
+  isConfirmOpen.value = true
 }
 
 const status = ref('all')
@@ -191,6 +258,12 @@ const statusOptions = [
   { value: 'Đang theo dõi', label: 'Đang theo dõi' },
   { value: 'Ngừng theo dõi', label: 'Ngừng theo dõi' },
 ]
+
+// Khởi chạy load dữ liệu lần đầu tiên khi vào trang
+onMounted(() => {
+  loadSalaryData()
+  loadOrganizationTree()
+})
 
 watch(status, () => {
   searchQuery.value = '' // Reset thanh tìm kiếm khi đổi bộ lọc trạng thái
@@ -211,13 +284,6 @@ watch(status, () => {
         <div class="content__title_right">
           <ms-button variant="secondary">
             <template #icon>
-              <svg fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10"
-                />
-              </svg>
             </template>
             Danh mục của hệ thống
           </ms-button>
@@ -266,15 +332,14 @@ watch(status, () => {
                 </div>
               </div>
             </div>
-              <MsDropdown
-                v-model:value="status"
-                :options="statusOptions"
-                placeholder="Trạng thái"
-                variant="filter"
-                :disable-search="true"
-              />
-             <MsTree/>
-            
+            <MsDropdown
+              v-model:value="status"
+              :options="statusOptions"
+              placeholder="Trạng thái"
+              variant="filter"
+              :disable-search="true"
+            />
+            <MsTree :data-source="organizationTree" />
           </div>
           <div class="toolbar__right">
             <div class="button-group">
@@ -360,8 +425,19 @@ watch(status, () => {
           @update:current-page="handlePageChange"
           @update:page-size="handlePageSizeChange"
         />
+        <MsConfirmModal
+          v-model="isConfirmOpen"
+          title="Thông báo"
+          :message="`Bạn có chắc chắn muốn xóa thành phần lương ${selectedRow?.salaryCompositionCode || ''} không?`"
+          type="danger"
+          confirm-text="Xóa"
+          cancel-text="Hủy"
+          :loading="isDeleting"
+          @confirm="confirmDelete"
+        />
       </div>
     </div>
+    />
   </main>
 </template>
 
@@ -545,7 +621,7 @@ watch(status, () => {
   opacity: 1;
 }
 
-.toolbar__dropdown__group{
+.toolbar__dropdown__group {
   display: flex;
   gap: 8px;
 }

@@ -83,14 +83,13 @@
 
 
 .col__sticky {
-  position: sticky;
-  text-align: center !important;
+  position: sticky; 
+  text-align: center;
 }
 /* Header sticky */
 thead .col__checkbox.col__sticky {
   left: 0;
   background: #f9fafb;
-  z-index: 6;
 }
 thead .col__action.col__sticky {
   right: 0;
@@ -112,7 +111,6 @@ tbody .col__action.col__sticky {
   min-width: 72px;
   max-width: 72px;
   background: #fff;
-  z-index: 20;
   overflow: visible;
 }
 .col__checkbox {

@@ -1,5 +1,5 @@
 <template>
-  <div ref="dropdownRef" :class="['custom-dropdown', `variant-${variant}`]">
+  <div ref="dropdownRef" :class="['custom-dropdown', `variant-${variant}`, { 'is-error': error }]">
     <button type="button" class="dropdown-trigger" :disabled="disabled" @click="toggleDropdown">
       <span class="trigger-content">
         <span v-if="variant === 'filter' && placeholder" class="placeholder-text">
@@ -45,6 +45,9 @@
       </div>
     </div>
   </div>
+  <p v-if="error && errorMessage" class="error-message">
+    {{ errorMessage }}
+  </p>
 </template>
 
 <script setup>
@@ -79,6 +82,15 @@ const props = defineProps({
     type: Boolean,
 
     default: false,
+  },
+
+  error: {
+    type: Boolean,
+    default: false,
+  },
+  errorMessage: {
+    type: String,
+    default: '',
   },
 })
 
@@ -333,5 +345,20 @@ const selectOption = (val) => {
   border-color: #d1d5db;
 
   background: #f3f4f6;
+}
+
+.is-error .dropdown-trigger {
+  border-color: #ef4444;
+}
+
+.is-error .dropdown-trigger:focus-within {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
+}
+
+.error-message {
+  margin-top: 4px;
+  font-size: 12px;
+  color: #ef4444;
 }
 </style>

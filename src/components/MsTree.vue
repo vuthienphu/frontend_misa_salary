@@ -9,11 +9,11 @@
     placeholder="Tất cả đơn vị"
     field-template="field"
   >
-   <template #field="{ value }">
+    <template #field="{ value }">
       <span v-if="selectedNames.length === 0" class="placeholder">Tất cả đơn vị</span>
-      <div class="custom-item" style="padding: 4px;">
+      <div class="custom-item" style="padding: 4px">
         <DxTextBox :value="value" :read-only="true" />
-        <div style="display: flex; flex-wrap: wrap; gap: 4px; max-width: 100%;">
+        <div style="display: flex; flex-wrap: wrap; gap: 4px; max-width: 100%">
           <template v-for="(name, index) in visibleFilterItems" :key="index">
             <div class="filter-item">
               {{ name }}
@@ -72,7 +72,6 @@ const props = defineProps({
 
 const treeBoxValue = ref<string[]>([]) // chứa danh sách ID đã chọn (đa lựa chọn)
 const organizationData = ref<any[]>([]) // dữ liệu dạng cây
-const flatOrganizationList = ref<any[]>([]) // danh sách phẳng
 const treeViewRef = ref()
 const isSyncing = ref(false)
 const didFirstExpand = ref(false)
@@ -82,53 +81,6 @@ const treeData = computed<any[]>(() =>
   props.dataSource ? (props.dataSource as any[]) : organizationData.value,
 )
 const flatList = computed<any[]>(() => flattenTree(treeData.value, [], props.itemsExpr))
-
-function buildTree(data) {
-  const map = new Map()
-  const roots = []
-
-  // Tạo map trước
-  data.forEach((item) => {
-    map.set(item.organizationID, {
-      ...item,
-      items: [],
-    })
-  })
-
-  // Gắn cha con
-  data.forEach((item) => {
-    const node = map.get(item.organizationID)
-
-    if (item.parentId) {
-      const parent = map.get(item.parentId)
-
-      if (parent) {
-        parent.items.push(node)
-      }
-    } else {
-      roots.push(node)
-    }
-  })
-
-  return roots
-}
-
-// Gọi API để lấy dữ liệu cây tổ chức
-async function loadOrganizationTree() {
-  try {
-    const res = await OrganizationService.getOrganizationAll()
-
-    const flatData = res?.data || []
-
-    const treeData = buildTree(flatData)
-
-    organizationData.value = treeData
-
-    flatOrganizationList.value = flattenTree(treeData)
-  } catch (error) {
-    console.error('Lỗi khi tải dữ liệu OrganizationTrees:', error)
-  }
-}
 
 // Đệ quy để chuyển đổi dữ liệu cây thành danh sách phẳng
 function flattenTree(
@@ -152,14 +104,6 @@ function flattenTree(
   }
   return result
 }
-
-onMounted(() => {
-  if (!props.dataSource) {
-    loadOrganizationTree()
-  } else {
-    flatOrganizationList.value = flattenTree(treeData.value, [], props.itemsExpr)
-  }
-})
 
 // Đồng bộ trạng thái TreeView khi mở dropdown
 function treeViewContentReady() {
@@ -314,16 +258,19 @@ function removeFilterItem(index: number) {
     treeView.unselectItem(idToRemove)
   }
 }
+
+defineExpose({
+  treeBoxValue,
+})
 </script>
 
 <style>
 .dx-treeview-toggle-item-visibility {
-  mask-image: url('@/assets/icons/Icon.svg');
-  mask-repeat: no-repeat;
-  background-color: currentColor;
-  mask-position: -122px -42px;
-  width: 16px;
-  height: 16px;
+  background-image: url('../assets/icons/download2.svg');
+  background-repeat: no-repeat;
+  background-position: -53px -336px !important;
+  width: 14px !important;
+  height: 8px !important;
 }
 .dx-treeview-toggle-item-visibility.dx-treeview-toggle-item-visibility-opened {
   mask-position: -102px -42px;
@@ -331,19 +278,20 @@ function removeFilterItem(index: number) {
   height: 16px;
 }
 .dx-dropdowneditor-icon {
-  mask-image: url('@/assets/icons/Icon.svg');
-  mask-repeat: no-repeat;
-  background-color: currentColor;
-  mask-position: -105px -7px;
-  width: 10px !important;
-  height: 6px !important;
+  background-image: url('../assets/icons/download2.svg');
+  background-repeat: no-repeat;
+  background-position: -53px -336px !important;
+  width: 14px !important;
+  height: 8px !important;
 }
-
-/* .dx-texteditor-input-container {
+.dx-texteditor-input-container {
   display: none !important;
-} */
- .custom-item .dx-texteditor-input-container {
+}
+.custom-item .dx-texteditor-input-container {
   display: none;
+}
+.dx-texteditor.dx-editor-outlined {
+  border-radius: 8px !important;
 }
 </style>
 
@@ -353,7 +301,7 @@ function removeFilterItem(index: number) {
   padding: 8px;
 }
 .ms-tree {
-  width: 350px;
+  width: var(--ms-tree-width, 350px);
   white-space: nowrap; /* Ngăn không cho xuống dòng */
   overflow: hidden; /* Ẩn nội dung tràn */
   text-overflow: ellipsis; /* Thêm dấu "..." khi nội dung tràn */
@@ -493,4 +441,5 @@ function removeFilterItem(index: number) {
 .filter-item-close:hover {
   color: #212121;
 }
+
 </style>

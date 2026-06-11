@@ -15,7 +15,7 @@ export const SalaryCompositionService = {
     });
   },
 
-  getFilterPaging(pageIndex = 1, pageSize = 15,isActive='') {
+  getFilterPaging(pageIndex = 1, pageSize = 15, isActive = '') {
     return api.get('/SalaryComposition/filter', {
       params: {
         pageIndex,
@@ -25,7 +25,7 @@ export const SalaryCompositionService = {
     });
   },
 
-  getSearchPaging(pageIndex = 1, pageSize = 15,searchValue='') {
+  getSearchPaging(pageIndex = 1, pageSize = 15, searchValue = '') {
     return api.get('/SalaryComposition/search', {
       params: {
         pageIndex,
@@ -38,6 +38,13 @@ export const SalaryCompositionService = {
   getSalaryCompositionAll() {
     return api.get('/SalaryComposition');
   },
-  
+
+  createSalaryComposition(data) {
+    return api.post('/SalaryComposition', data);
+  },
+
+deleteSalaryComposition(ID) {
+    return api.delete(`/SalaryComposition/${ID}`);
+  }
 
 };

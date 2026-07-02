@@ -448,7 +448,7 @@ background-color: rgb(113, 118, 128);
   background-color: green;
 }
 
-.mi__icon__stop__tracking{
+.mi__icon__untracking{
   width: 18px;
   height: 18px;
   -webkit-mask-image: url('../icons/Icon.svg');

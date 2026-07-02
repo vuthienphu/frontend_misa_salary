@@ -7,6 +7,7 @@ import MsDropdown from '@/components/MsDropdown.vue'
 import MsButton from '@/components/MsButton.vue'
 import MsTree from '@/components/MsTree.vue'
 import MsConfirmModal from '@/components/MsConfirmModal.vue'
+import MsToast from '@/components/MsToast.vue'
 import { ref, onMounted, watch } from 'vue'
 import { SalaryCompositionService } from '@/services/SalaryComposition.js'
 import { OrganizationService } from '@/services/OrganizationService'
@@ -34,6 +35,8 @@ const fields = [
   { key: 'status', label: 'Trạng thái', class: '' },
   { key: 'action', label: '', class: 'col__sticky col__action' },
 ]
+
+const toastRef = ref(null)
 
 // Quản lý trạng thái dữ liệu hiển thị trên bảng
 const rows = ref([])
@@ -97,7 +100,7 @@ const handleCreateClick = () => {
 const mapResponseData = (dataArray) => {
   return (dataArray || []).map((item) => ({
     ...item,
-    salaryCompositionId: item.salaryCompositionID, 
+    salaryCompositionId: item.salaryCompositionID,
     salaryCompositionCode: item.salaryCompositionCode,
     name: item.salaryCompositionName,
     unit: item.organizationNames,
@@ -235,6 +238,8 @@ const confirmDelete = async () => {
     await loadSalaryData()
 
     isConfirmOpen.value = false
+
+    toastRef.value?.showToast(`Xóa thành công`, 'success')
     selectedRow.value = null
   } catch (err) {
     console.error('Xóa thất bại:', err)
@@ -244,7 +249,12 @@ const confirmDelete = async () => {
 }
 
 const handleEditClick = (row) => {
-  console.log('Sửa:', row)
+ sessionStorage.setItem(
+    'salaryCompositionEditData',
+    JSON.stringify(row),
+  )
+
+  router.push(`/form/${row.salaryCompositionId}`)
 }
 
 const handleDeleteClick = (row) => {
@@ -252,6 +262,17 @@ const handleDeleteClick = (row) => {
   isConfirmOpen.value = true
 }
 
+const handleSearchEnter = async () => {
+  if (!searchQuery.value.trim()) {
+    loadSalaryData()
+    return
+  }
+
+  currentPage.value = 1
+  await loadSalaryData()
+
+  isDropdownOpen.value = false
+}
 const status = ref('all')
 const statusOptions = [
   { value: 'all', label: 'Tất cả' },
@@ -263,6 +284,15 @@ const statusOptions = [
 onMounted(() => {
   loadSalaryData()
   loadOrganizationTree()
+  const toastData = sessionStorage.getItem('toastMessage')
+
+  if (toastData) {
+    const toast = JSON.parse(toastData)
+
+    toastRef.value?.showToast(toast.message, toast.type)
+
+    sessionStorage.removeItem('toastMessage')
+  }
 })
 
 watch(status, () => {
@@ -275,6 +305,7 @@ watch(status, () => {
 </script>
 
 <template>
+  <MsToast ref="toastRef" />
   <main>
     <Navbar />
     <Sidebar />
@@ -284,6 +315,7 @@ watch(status, () => {
         <div class="content__title_right">
           <ms-button variant="secondary">
             <template #icon>
+              <span class="mi__icon__untracking"></span>
             </template>
             Danh mục của hệ thống
           </ms-button>
@@ -308,6 +340,7 @@ watch(status, () => {
                 placeholder="Tìm kiếm"
                 v-model="searchQuery"
                 @input="handleSearchInput"
+                @keyup.enter="handleSearchEnter"
                 @focus="isDropdownOpen = searchQuery.trim().length > 0 && !isSelectedFromDropdown"
                 @blur="closeDropdown"
                 style="padding-right: 32px"
@@ -401,8 +434,10 @@ watch(status, () => {
             <div class="action__group">
               <div class="button__wrapper">
                 <div
-                  class="mi__icon__tracking"
-                  title="Đang theo dõi"
+                  :class="
+                    row.status === 'Ngừng theo dõi' ? 'mi__icon__tracking' : 'mi__icon__untracking'
+                  "
+                  :title="row.status === 'Ngừng theo dõi' ? 'Đang theo dõi' : 'Ngừng theo dõi'"
                   @click="handleEditClick(row)"
                 ></div>
               </div>

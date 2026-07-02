@@ -1,23 +1,21 @@
 <template>
-  <div 
-    v-if="variant === 'combo'" 
-    class="ms-combo-btn"
-    :class="{ 'ms-btn--disabled': disabled }"
-  >
-    <button
-      :disabled="disabled"
-      @click="$emit('click', $event)"
-      class="ms-combo-btn__main"
-    >
+  <div v-if="variant === 'combo'" class="ms-combo-btn" :class="{ 'ms-btn--disabled': disabled }">
+    <button :disabled="disabled" @click="$emit('click', $event)" class="ms-combo-btn__main">
       <slot></slot>
     </button>
-    
+
     <button
       :disabled="disabled"
       @click="$emit('dropdown-click', $event)"
       class="ms-combo-btn__arrow"
     >
-      <svg class="ms-btn__icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <svg
+        class="ms-btn__icon"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        viewBox="0 0 24 24"
+      >
         <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
       </svg>
     </button>
@@ -31,11 +29,11 @@
       'ms-btn',
       `ms-btn--${variant}`,
       {
-        'ms-btn--has-icon-left': variant === 'icon' || variant === 'mixed'
-      }
+        'ms-btn--has-icon-left': !!$slots.icon,
+      },
     ]"
   >
-    <span v-if="(variant === 'icon' || variant === 'mixed') && $slots.icon" class="ms-btn__icon ms-btn__icon--left">
+    <span v-if="$slots.icon" class="ms-btn__icon ms-btn__icon--left">
       <slot name="icon"></slot>
     </span>
 
@@ -57,28 +55,30 @@ defineProps({
   variant: {
     type: String,
     default: 'primary',
-    validator: (value) => ['primary', 'secondary', 'link', 'combo', 'icon', 'mixed'].includes(value)
+    validator: (value) =>
+      ['primary', 'secondary', 'link', 'combo', 'icon', 'mixed'].includes(value),
   },
   disabled: {
     type: Boolean,
-    default: false
-  }
-});
+    default: false,
+  },
+})
 
 // Định nghĩa các sự kiện trả về component cha khi click
-defineEmits(['click', 'dropdown-click']);
+defineEmits(['click', 'dropdown-click'])
 </script>
 
 <style scoped>
 /* --- BIẾN DESIGN SYSTEM ĐƯỢC ĐÓNG GÓI --- */
-.ms-btn, .ms-combo-btn {
-  --primary-color: #02B956;
-  --pressed-color: #198F3B;
+.ms-btn,
+.ms-combo-btn {
+  --primary-color: #02b956;
+  --pressed-color: #198f3b;
   --disabled-opacity: 0.6;
   --border-radius: 8px;
   --height: 36px;
   --font-size: 14px;
-  --secondary-color:#D5D7DA;
+  --secondary-color: #d5d7da;
 }
 
 /* --- STYLE CƠ BẢN CỦA BUTTON --- */
@@ -88,7 +88,10 @@ defineEmits(['click', 'dropdown-click']);
   justify-content: center;
   height: var(--height);
   font-size: var(--font-size);
-  font-family: system-ui, -apple-system, sans-serif;
+  font-family:
+    system-ui,
+    -apple-system,
+    sans-serif;
   font-weight: 500;
   border: none;
   border-radius: var(--border-radius);
@@ -96,7 +99,9 @@ defineEmits(['click', 'dropdown-click']);
   background-color: transparent;
   padding: 0 16px; /* Mặc định nút chính và phụ là 16px trái/phải */
   box-sizing: border-box;
-  transition: background-color 0.2s ease, color 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
   user-select: none;
 }
 
@@ -124,7 +129,7 @@ defineEmits(['click', 'dropdown-click']);
 /* 2. Nút phụ (Secondary) */
 .ms-btn--secondary {
   background-color: #ffffff;
-  color:  #101828;
+  color: #101828;
   border: 1px solid var(--secondary-color);
 }
 .ms-btn--secondary:hover {
@@ -155,10 +160,12 @@ defineEmits(['click', 'dropdown-click']);
   background-color: var(--primary-color);
   color: #ffffff;
 }
-.ms-btn--icon:hover, .ms-btn--mixed:hover {
+.ms-btn--icon:hover,
+.ms-btn--mixed:hover {
   background-color: #02a64d;
 }
-.ms-btn--icon:active, .ms-btn--mixed:active {
+.ms-btn--icon:active,
+.ms-btn--mixed:active {
   background-color: var(--pressed-color);
 }
 
@@ -229,12 +236,12 @@ defineEmits(['click', 'dropdown-click']);
   transition: background-color 0.2s;
 }
 
-.ms-combo-btn__main:hover, 
+.ms-combo-btn__main:hover,
 .ms-combo-btn__arrow:hover {
   background-color: #02a64d;
 }
 
-.ms-combo-btn__main:active, 
+.ms-combo-btn__main:active,
 .ms-combo-btn__arrow:active {
   background-color: var(--pressed-color);
 }

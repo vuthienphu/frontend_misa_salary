@@ -54,12 +54,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed,watch } from 'vue'
 import DxDropDownBox from 'devextreme-vue/drop-down-box'
 import DxTreeView, { type DxTreeViewTypes } from 'devextreme-vue/tree-view'
 import DxTextBox from 'devextreme-vue/text-box'
 import MsInput from '@/components/MsInput.vue'
-import { OrganizationService } from '@/services/OrganizationService'
+
 
 const props = defineProps({
   dataSource: { type: Array as any, default: null },
@@ -68,9 +68,15 @@ const props = defineProps({
   itemsExpr: { type: String, default: 'items' },
   selectionMode: { type: String as any, default: 'multiple' },
   inline: { type: Boolean, default: false },
+  modelValue: {
+    type: Array,
+    default: () => [],
+  },
 })
 
-const treeBoxValue = ref<string[]>([]) // chứa danh sách ID đã chọn (đa lựa chọn)
+const emit = defineEmits(['update:modelValue'])
+
+const treeBoxValue =  ref<any[]>([...props.modelValue])// chứa danh sách ID đã chọn (đa lựa chọn)
 const organizationData = ref<any[]>([]) // dữ liệu dạng cây
 const treeViewRef = ref()
 const isSyncing = ref(false)
@@ -137,6 +143,7 @@ function treeViewItemSelectionChanged(e: DxTreeViewTypes.ItemSelectionChangedEve
   }
   const keys = treeView.getSelectedNodeKeys() // Cập nhật danh sách ID đã chọn
   treeBoxValue.value = keys
+  emit('update:modelValue', keys)
 }
 
 // Mở rộng các node cấp 1 (cha) chỉ một lần khi mở dropdown
@@ -253,15 +260,31 @@ function removeFilterItem(index: number) {
   const idToRemove = treeBoxValue.value[index]
   treeBoxValue.value.splice(index, 1)
 
+  emit('update:modelValue', [...treeBoxValue.value])
+
   const treeView = treeViewRef.value?.instance
   if (treeView) {
     treeView.unselectItem(idToRemove)
   }
 }
 
-defineExpose({
+watch(
+  () => props.modelValue,
+  (newValue) => {
+    treeBoxValue.value = [...(newValue || [])]
+
+    syncTreeViewSelection()
+  },
+  { deep: true },
+)
+
+watch(
   treeBoxValue,
-})
+  (newValue) => {
+    emit('update:modelValue', newValue)
+  },
+  { deep: true },
+)
 </script>
 
 <style>
@@ -441,5 +464,4 @@ defineExpose({
 .filter-item-close:hover {
   color: #212121;
 }
-
 </style>

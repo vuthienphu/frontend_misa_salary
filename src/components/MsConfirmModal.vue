@@ -5,7 +5,7 @@
       <!-- Header -->
       <div class="modal-header">
         <h3>{{ title }}</h3>
-        <button class="close-btn" @click="onCancel">×</button>
+        <button class="close-btn" @click="onCancel">x</button>
       </div>
 
       <!-- Body -->
@@ -117,8 +117,16 @@ function onConfirm() {
   border-radius: 6px;
 }
 
+button{
+  border-color:#d5d7da;
+}
+
+button:hover{
+cursor: pointer;
+}
+
 .btn-danger { background: #e74c3c; color: white; }
 .btn-warning { background: #f39c12; color: white; }
-.btn-primary { background: #3498db; color: white; }
+.btn-primary { background: #02b956; color: white; }
 .btn-secondary { background: #ddd; }
 </style>

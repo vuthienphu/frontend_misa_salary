@@ -9,11 +9,9 @@ import MsDropdownSearch from '@/components/MsDropdownSearch.vue'
 import MsTree from '@/components/MsTree.vue'
 import MsButton from '@/components/MsButton.vue'
 import { OrganizationService } from '@/services/OrganizationService'
+import MsConfirmModal from '@/components/MsConfirmModal.vue'
 import { nextTick } from 'vue'
 import { useRouter } from 'vue-router'
-import MsConfirmModal from '@/components/MsConfirmModal.vue'
-
-const showCancelConfirm = ref(false)
 
 const router = useRouter()
 
@@ -171,13 +169,35 @@ const focusFirstError = async () => {
   }
 }
 
-const handleCancel = () => {
-  showCancelConfirm.value = true
-}
+const loadEditData = () => {
+  const cached = sessionStorage.getItem('salaryCompositionEditData')
 
-const confirmCancel = () => {
-  showCancelConfirm.value = false
-  router.push('/')
+  if (!cached) {
+    router.push('/')
+    return
+  }
+
+  const data = JSON.parse(cached)
+
+  formData.value = {
+    salaryCompositionName: data.salaryCompositionName || '',
+    salaryCompositionCode: data.salaryCompositionCode || '',
+    organizationIdsList: data.organizationIdsList || [],
+    compositionType: data.compositionType || '',
+    natureType: data.natureType || 'Thu nhập',
+    taxType: data.taxType || 'Chịu thuế',
+    isTaxReduction: data.isTaxReduction,
+    quotaFormula: data.quotaFormula || '',
+    isAllowOverQuota: data.isAllowOverQuota,
+    dataType: data.dataType || 'Tiền tệ',
+    valueCalculationType: data.valueCalculationType || 'Tính theo công thức tự đặt',
+    aggregationScope: data.aggregationScope || 'Trong cùng đơn vị công tác',
+    customFormula: data.customFormula || '',
+    description: data.description || '',
+    isVisibleOnPayslip: data.isVisibleOnPayslip || 'Có',
+    sourceType: data.sourceType || 'Tự thêm',
+    isActive: data.isActive || 'Đang theo dõi',
+  }
 }
 
 function buildTree(data) {
@@ -215,9 +235,10 @@ async function loadOrganizationTree() {
   }
 }
 
-onMounted(() => {
-  fetchSalaryCompositions()
-  loadOrganizationTree()
+onMounted(async () => {
+  loadEditData()
+
+  await Promise.all([fetchSalaryCompositions(), loadOrganizationTree()])
 })
 
 watch(
@@ -580,18 +601,10 @@ const handleSave = async () => {
       </div>
 
       <div class="form-footer">
-        <ms-button variant="secondary" @click="handleCancel"> Hủy bỏ </ms-button>
+        <ms-button variant="secondary"> Hủy bỏ </ms-button>
         <ms-button variant="primary" @click="handleSave">Lưu</ms-button>
       </div>
     </div>
-    <MsConfirmModal
-      v-model="showCancelConfirm"
-      title="Xác nhận thoát"
-      message="Dữ liệu chưa được lưu. Bạn có chắc chắn muốn thoát khỏi màn hình này không?"
-      confirm-text="Thoát không lưu"
-      cancel-text="Ở lại trang này"
-      @confirm="confirmCancel"
-    />
   </main>
 </template>
 

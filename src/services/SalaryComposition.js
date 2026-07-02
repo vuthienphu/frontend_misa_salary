@@ -43,8 +43,12 @@ export const SalaryCompositionService = {
     return api.post('/SalaryComposition', data);
   },
 
-deleteSalaryComposition(ID) {
+  deleteSalaryComposition(ID) {
     return api.delete(`/SalaryComposition/${ID}`);
+  },
+
+  getSalaryCompositionById(ID){
+      return api.get(`/SalaryComposition/${ID}`);
   }
 
 };
